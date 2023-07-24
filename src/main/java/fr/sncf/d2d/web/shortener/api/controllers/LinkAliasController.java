@@ -42,7 +42,7 @@ public class LinkAliasController {
     public void delete(
             @PathVariable
             UUID id,
-            @RequestHeader(REMOVAL_TOKEN_HEADER_KEY)
+            @RequestHeader(value = REMOVAL_TOKEN_HEADER_KEY, required = false)
             String token
     ) {
         this.aliasedLinkService.revoke(id, token);
