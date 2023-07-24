@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -42,8 +43,8 @@ public class LinkAliasController {
     public void delete(
             @PathVariable
             UUID id,
-            @RequestHeader(value = REMOVAL_TOKEN_HEADER_KEY, required = false)
-            String token
+            @RequestHeader(value = REMOVAL_TOKEN_HEADER_KEY)
+            Optional<String> token
     ) {
         this.aliasedLinkService.revoke(id, token);
     }

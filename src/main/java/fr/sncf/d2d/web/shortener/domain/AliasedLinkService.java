@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,25 +23,21 @@ public class AliasedLinkService {
     public AliasedLink createAliasedLink(URL originalUrl) {
         String shortUrl = this.generateAlias();
         String token = this.generateToken();
-        return this.repository.save(new AliasedLink(shortUrl, originalUrl, token));
+        return this.repository.save(new AliasedLinkCreation(shortUrl, originalUrl, token));
     }
 
-    public void revoke(UUID id, String token) {
-        AliasedLink link = this.repository.retrieve(id);
-        if (link == null) {
-            throw AliasedLinkNotFoundException.of(id);
-        }
-        if (token == null || !token.equals(link.token())) {
-            throw InvalidLinkTokenException.of(token);
+    public void revoke(UUID id, Optional<String> token) {
+        AliasedLink link = this.repository.retrieve(id)
+                .orElseThrow(() -> AliasedLinkNotFoundException.of(id));
+        if (!token.map(link.token()::equals).orElse(false)) {
+            throw InvalidLinkTokenException.of(token.orElse("<empty>"));
         }
         this.repository.remove(link);
     }
 
     public URL resolve(String alias) {
-        AliasedLink entity = this.repository.retrieveByAlias(alias);
-        if (entity == null) {
-            throw AliasedLinkNotFoundException.of(alias);
-        }
+        AliasedLink entity = this.repository.retrieveByAlias(alias)
+                .orElseThrow(() -> AliasedLinkNotFoundException.of(alias));
         return entity.url();
     }
 

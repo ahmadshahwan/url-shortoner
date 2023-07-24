@@ -8,6 +8,8 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.UUID;
+
 @WebMvcTest(LinkAliasController.class)
 class LinkAliasControllerTest extends ControllerTest {
 
@@ -52,5 +54,26 @@ class LinkAliasControllerTest extends ControllerTest {
                 .delete("/links/%s".formatted(link.id()));
         mvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    void delete_unrecognized_id_should_answer_not_found() throws Exception {
+        AliasedLink link = givenAliasedLink();
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/links/%s".formatted(UUID.randomUUID().toString()));
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void delete_twice_should_answer_not_found() throws Exception {
+        AliasedLink link = givenAliasedLink();
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/links/%s".formatted(link.id()))
+                .header("X-Removal-Token", link.token());
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }

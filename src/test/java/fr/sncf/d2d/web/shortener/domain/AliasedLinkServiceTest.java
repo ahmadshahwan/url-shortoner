@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,7 +29,7 @@ class AliasedLinkServiceTest {
     void revoke() throws MalformedURLException {
         URL url = new URL("https://www.sncf.fr");
         var link = this.sut.createAliasedLink(url);
-        this.sut.revoke(link.id(), link.token());
+        this.sut.revoke(link.id(), Optional.of(link.token()));
         assertThrows(AliasedLinkNotFoundException.class, () -> this.sut.resolve(link.alias()));
     }
 
