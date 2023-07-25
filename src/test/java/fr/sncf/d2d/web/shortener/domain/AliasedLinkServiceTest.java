@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Clock;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AliasedLinkServiceTest {
 
-    private final InMemoryAliasedLinkRepository repository = new InMemoryAliasedLinkRepository();
+    private final InMemoryAliasedLinkRepository repository = new InMemoryAliasedLinkRepository(Clock.systemDefaultZone());
     private final AliasedLinkService sut = new AliasedLinkService(repository);
 
     @Test
