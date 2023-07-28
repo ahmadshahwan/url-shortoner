@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Clock;
 
 @Import(UrlShortenerTestConfiguration.class)
 public abstract class ControllerTest {
@@ -23,6 +24,9 @@ public abstract class ControllerTest {
 
     @SpyBean
     protected AliasedLinkService aliasedLinkService;
+
+    @SpyBean
+    protected Clock clock;
 
     protected static final String URL = "https://www.sncf.fr";
 

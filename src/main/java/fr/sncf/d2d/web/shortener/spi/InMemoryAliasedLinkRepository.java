@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
 
     private final Map<UUID, AliasedLinkEntity> data = new HashMap<>();
     private final Map<String, AliasedLinkEntity> aliasIndex = new HashMap<>();
-    private final Map<LocalDateTime, AliasedLinkEntity> lastAccessedIndex = new TreeMap<>();
+    private final SortedMap<LocalDateTime, AliasedLinkEntity> lastAccessedIndex = new TreeMap<>();
 
     private final Clock clock;
 
@@ -68,10 +69,15 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
 
     @Override
     public void removeOlderThan(LocalDateTime localDateTime) {
-        this.lastAccessedIndex.entrySet().stream()
-                .filter(e -> e.getKey().isBefore(localDateTime))
-                .map(Map.Entry::getValue)
-                .forEach(this::remove);
+        Map<LocalDateTime, AliasedLinkEntity> toRemove =
+                this.lastAccessedIndex.headMap(localDateTime);
+        toRemove.values().stream()
+                .map(AliasedLinkEntity::getId)
+                .forEach(this.data::remove);
+        toRemove.values().stream()
+                .map(AliasedLinkEntity::getAlias)
+                .forEach(this.aliasIndex::remove);
+        toRemove.clear();
     }
 
     private void add(AliasedLinkEntity entity) {
