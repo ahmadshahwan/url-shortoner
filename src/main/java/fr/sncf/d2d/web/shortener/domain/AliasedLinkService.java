@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,12 +43,12 @@ public class AliasedLinkService {
     public URL resolve(String alias) {
         AliasedLink entity = this.repository.retrieveByAlias(alias)
                 .orElseThrow(() -> AliasedLinkNotFoundException.of(alias));
+        this.repository.touch(entity.id());
         return entity.url();
     }
 
     public void prune() {
-        LocalDateTime threshold = LocalDateTime.now(clock).minusDays(30);
-        this.repository.removeOlderThan(threshold);
+        this.repository.removeOlderThan(Period.ofDays(30));
     }
 
     private String generateAlias() {

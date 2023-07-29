@@ -6,6 +6,7 @@ import fr.sncf.d2d.web.shortener.domain.AliasedLinkRepository;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -42,6 +43,15 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
     }
 
     @Override
+    public void touch(UUID id) {
+        AliasedLinkEntity link = this.data.get(id);
+        if (link == null) {
+            return;
+        }
+        link.setLastAccessed(LocalDateTime.now(this.clock));
+    }
+
+    @Override
     public AliasedLink save(AliasedLinkCreation creation) {
         AliasedLinkEntity entity = new AliasedLinkEntity(
                 UUID.randomUUID(),
@@ -65,9 +75,10 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
     }
 
     @Override
-    public int removeOlderThan(LocalDateTime localDateTime) {
+    public int removeOlderThan(TemporalAmount interval) {
+        LocalDateTime threshold = LocalDateTime.now(this.clock).minus(interval);
         Map<LocalDateTime, AliasedLinkEntity> toRemove =
-                this.lastAccessedIndex.headMap(localDateTime);
+                this.lastAccessedIndex.headMap(threshold);
         int size = toRemove.size();
         toRemove.values().forEach(link -> {
             this.data.remove(link.getId());

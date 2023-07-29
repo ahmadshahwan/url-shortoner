@@ -10,8 +10,9 @@ import org.springframework.stereotype.Repository;
 import java.io.File;
 import java.io.IOException;
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,14 +56,20 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
     }
 
     @Override
+    public void touch(UUID id) {
+        super.touch(id);
+        this.flush();
+    }
+
+    @Override
     public void remove(AliasedLink aliasedLink) {
         super.remove(aliasedLink);
         this.flush();
     }
 
     @Override
-    public int removeOlderThan(LocalDateTime localDateTime) {
-        int size = super.removeOlderThan(localDateTime);
+    public int removeOlderThan(TemporalAmount interval) {
+        int size = super.removeOlderThan(interval);
         if (size != 0) {
             this.flush();
         }

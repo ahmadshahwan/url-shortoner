@@ -1,6 +1,6 @@
 package fr.sncf.d2d.web.shortener.domain;
 
-import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,9 +10,11 @@ public interface AliasedLinkRepository {
 
     Optional<AliasedLink> retrieveByAlias(String shortValue);
 
+    void touch(UUID id);
+
     AliasedLink save(AliasedLinkCreation creation);
 
     void remove(AliasedLink aliasedLink);
 
-    int removeOlderThan(LocalDateTime localDateTime);
+    int removeOlderThan(TemporalAmount interval);
 }
