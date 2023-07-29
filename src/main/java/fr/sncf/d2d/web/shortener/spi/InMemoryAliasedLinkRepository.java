@@ -1,23 +1,22 @@
 package fr.sncf.d2d.web.shortener.spi;
 
+import fr.sncf.d2d.web.shortener.domain.AliasedLink;
 import fr.sncf.d2d.web.shortener.domain.AliasedLinkCreation;
 import fr.sncf.d2d.web.shortener.domain.AliasedLinkRepository;
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
-import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 
-@Service
 public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
 
-    private final Map<UUID, AliasedLinkEntity> data = new HashMap<>();
+    protected final Map<UUID, AliasedLinkEntity> data = new HashMap<>();
     private final Map<String, AliasedLinkEntity> aliasIndex = new HashMap<>();
     private final SortedMap<LocalDateTime, AliasedLinkEntity> lastAccessedIndex = new TreeMap<>();
 
@@ -57,9 +56,7 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
 
     @Override
     public void remove(AliasedLink aliasedLink) {
-        if (aliasedLink == null) {
-            throw new IllegalArgumentException("Removed aliased link cannot be null.");
-        }
+        Objects.requireNonNull(aliasedLink, "Removed aliased link cannot be null.");
         AliasedLinkEntity entity = this.data.get(aliasedLink.id());
         if (entity == null) {
             throw new IllegalArgumentException("No entity for link alias %s.".formatted(aliasedLink));
@@ -68,19 +65,19 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
     }
 
     @Override
-    public void removeOlderThan(LocalDateTime localDateTime) {
+    public int removeOlderThan(LocalDateTime localDateTime) {
         Map<LocalDateTime, AliasedLinkEntity> toRemove =
                 this.lastAccessedIndex.headMap(localDateTime);
-        toRemove.values().stream()
-                .map(AliasedLinkEntity::getId)
-                .forEach(this.data::remove);
-        toRemove.values().stream()
-                .map(AliasedLinkEntity::getAlias)
-                .forEach(this.aliasIndex::remove);
+        int size = toRemove.size();
+        toRemove.values().forEach(link -> {
+            this.data.remove(link.getId());
+            this.aliasIndex.remove(link.getAlias());
+        });
         toRemove.clear();
+        return size;
     }
 
-    private void add(AliasedLinkEntity entity) {
+    protected void add(AliasedLinkEntity entity) {
         this.data.put(entity.getId(), entity);
         this.aliasIndex.put(entity.getAlias(), entity);
         this.lastAccessedIndex.put(entity.getLastAccessed(), entity);

@@ -14,5 +14,5 @@ public interface AliasedLinkRepository {
 
     void remove(AliasedLink aliasedLink);
 
-    void removeOlderThan(LocalDateTime localDateTime);
+    int removeOlderThan(LocalDateTime localDateTime);
 }
