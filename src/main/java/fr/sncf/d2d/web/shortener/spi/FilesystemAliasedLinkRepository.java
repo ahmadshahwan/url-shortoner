@@ -13,6 +13,8 @@ import java.time.Clock;
 import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +24,18 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
     private final ObjectMapper objectMapper;
 
     private final Logger logger = Logger.getLogger(FilesystemAliasedLinkRepository.class.getName());
+
+    /**
+     * Thread pool of size one to insure synchronization.
+     * Only one thread can be running.
+     */
+    private final ExecutorService executor = Executors.newFixedThreadPool(1);
+
+    /**
+     * Whether a write operation is already queued.
+     * This flag allows for only one runnable to be awaiting execution.
+     */
+    private volatile boolean writeQueued = false;
 
     public FilesystemAliasedLinkRepository(
             Clock clock,
@@ -77,6 +91,15 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
     }
 
     private synchronized void flush() {
+        if (this.writeQueued) {
+            return;
+        }
+        this.writeQueued = true;
+        this.executor.submit(this::doFlush);
+    }
+
+    private void doFlush() {
+        this.writeQueued = false;
         File file = new File(this.fileName);
         try {
             this.objectMapper.writeValue(file, this.data.values());
