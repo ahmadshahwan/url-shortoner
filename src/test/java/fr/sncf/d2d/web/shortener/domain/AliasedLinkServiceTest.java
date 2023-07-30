@@ -19,7 +19,7 @@ class AliasedLinkServiceTest {
 
     private final Clock clock = Mockito.spy(Clock.systemDefaultZone());
     private final InMemoryAliasedLinkRepository repository = new InMemoryAliasedLinkRepository(clock);
-    private final AliasedLinkService sut = new AliasedLinkService(repository, clock);
+    private final AliasedLinkService sut = new AliasedLinkService(repository);
 
     @Test
     void create_aliased_link() throws MalformedURLException {
