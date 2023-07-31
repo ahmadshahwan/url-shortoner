@@ -1,9 +1,5 @@
 package fr.sncf.d2d.web.shortener.domain;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(value = HttpStatus.FORBIDDEN)
 public class InvalidLinkTokenException extends RuntimeException {
 
     public InvalidLinkTokenException(String message) {
