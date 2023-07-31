@@ -58,7 +58,7 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
             AliasedLinkEntity[] list = this.objectMapper.readValue(file, AliasedLinkEntity[].class);
             Arrays.stream(list).forEach(this::add);
         } catch (IOException e) {
-            this.logger.log(Level.SEVERE, "Log file could not be loaded.");
+            this.logger.log(Level.SEVERE, "Log file could not be loaded.", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
         try {
             this.objectMapper.writeValue(file, this.data.values());
         } catch (IOException e) {
-            this.logger.log(Level.SEVERE, "Link entries could not be saved.");
+            this.logger.log(Level.SEVERE, "Link entries could not be saved.", e);
         }
     }
 }
