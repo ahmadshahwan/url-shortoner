@@ -1,8 +1,8 @@
 package fr.sncf.d2d.web.shortener.spi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkCreation;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasCreation;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -19,11 +19,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Repository
-public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkRepository {
+public class FilesystemLinkAliasRepository extends InMemoryLinkAliasRepository {
     private final String fileName;
     private final ObjectMapper objectMapper;
 
-    private final Logger logger = Logger.getLogger(FilesystemAliasedLinkRepository.class.getName());
+    private final Logger logger = Logger.getLogger(FilesystemLinkAliasRepository.class.getName());
 
     /**
      * Thread pool of size one to insure synchronization.
@@ -37,7 +37,7 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
      */
     private volatile boolean writeQueued = false;
 
-    public FilesystemAliasedLinkRepository(
+    public FilesystemLinkAliasRepository(
             Clock clock,
             @Value("${url-shortener.save.file.name}")
             String fileName,
@@ -55,7 +55,7 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
             return;
         }
         try {
-            AliasedLinkEntity[] list = this.objectMapper.readValue(file, AliasedLinkEntity[].class);
+            LinkAliasEntity[] list = this.objectMapper.readValue(file, LinkAliasEntity[].class);
             Arrays.stream(list).forEach(this::add);
         } catch (IOException e) {
             this.logger.log(Level.SEVERE, "Log file could not be loaded.", e);
@@ -63,8 +63,8 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
     }
 
     @Override
-    public AliasedLink save(AliasedLinkCreation creation) {
-        AliasedLink result = super.save(creation);
+    public LinkAlias save(LinkAliasCreation creation) {
+        LinkAlias result = super.save(creation);
         this.flush();
         return result;
     }
@@ -76,8 +76,8 @@ public class FilesystemAliasedLinkRepository extends InMemoryAliasedLinkReposito
     }
 
     @Override
-    public void remove(AliasedLink aliasedLink) {
-        super.remove(aliasedLink);
+    public void remove(LinkAlias linkAlias) {
+        super.remove(linkAlias);
         this.flush();
     }
 

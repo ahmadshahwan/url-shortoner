@@ -1,6 +1,6 @@
 package fr.sncf.d2d.web.shortener.api.controllers;
 
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +13,7 @@ class LinkAliasResolverTest extends ControllerTest {
 
     @Test
     void should_resolve_existing_alias() throws Exception {
-        AliasedLink link = givenAliasedLink();
+        LinkAlias link = givenLinkAlias();
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/%s".formatted(link.alias()));
         mvc.perform(request)

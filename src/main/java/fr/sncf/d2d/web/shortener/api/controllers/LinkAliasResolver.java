@@ -1,6 +1,6 @@
 package fr.sncf.d2d.web.shortener.api.controllers;
 
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkService;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +13,10 @@ import java.net.URL;
 @RequestMapping
 public class LinkAliasResolver {
 
-    private final AliasedLinkService aliasedLinkService;
+    private final LinkAliasService linkAliasService;
 
-    LinkAliasResolver(AliasedLinkService aliasedLinkService) {
-        this.aliasedLinkService = aliasedLinkService;
+    LinkAliasResolver(LinkAliasService linkAliasService) {
+        this.linkAliasService = linkAliasService;
     }
 
     @GetMapping("/{url}")
@@ -24,7 +24,7 @@ public class LinkAliasResolver {
             @PathVariable
             String url
     ) {
-        URL originalUrl = this.aliasedLinkService.resolve(url);
+        URL originalUrl = this.linkAliasService.resolve(url);
         return new RedirectView(originalUrl.toString());
     }
 }

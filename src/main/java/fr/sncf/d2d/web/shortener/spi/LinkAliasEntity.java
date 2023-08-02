@@ -1,19 +1,19 @@
 package fr.sncf.d2d.web.shortener.spi;
 
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
 
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class AliasedLinkEntity {
+public class LinkAliasEntity {
     private final UUID id;
     private final String alias;
     private final URL url;
     private final String token;
     private LocalDateTime lastAccessed;
 
-    public AliasedLinkEntity(UUID id, String alias, URL url, String token, LocalDateTime lastAccessed) {
+    public LinkAliasEntity(UUID id, String alias, URL url, String token, LocalDateTime lastAccessed) {
         this.id = id;
         this.alias = alias;
         this.url = url;
@@ -45,8 +45,8 @@ public class AliasedLinkEntity {
         this.lastAccessed = lastAccessed;
     }
 
-    public AliasedLink toAliasedLink() {
-        return new AliasedLink(
+    public LinkAlias toLinkAlias() {
+        return new LinkAlias(
                 this.id,
                 this.alias,
                 this.url,

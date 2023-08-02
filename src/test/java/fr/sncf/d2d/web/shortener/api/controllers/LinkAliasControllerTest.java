@@ -1,6 +1,6 @@
 package fr.sncf.d2d.web.shortener.api.controllers;
 
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -28,7 +28,7 @@ class LinkAliasControllerTest extends ControllerTest {
 
     @Test
     void delete_should_answer_ok_when_token_is_correct() throws Exception {
-        AliasedLink link = givenAliasedLink();
+        LinkAlias link = givenLinkAlias();
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/links/%s".formatted(link.id()))
                 .header("X-Removal-Token", link.token());
@@ -39,7 +39,7 @@ class LinkAliasControllerTest extends ControllerTest {
 
     @Test
     void delete_should_answer_403_when_token_is_incorrect() throws Exception {
-        AliasedLink link = givenAliasedLink();
+        LinkAlias link = givenLinkAlias();
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/links/%s".formatted(link.id()))
                 .header("X-Removal-Token", "not a token");
@@ -49,7 +49,7 @@ class LinkAliasControllerTest extends ControllerTest {
 
     @Test
     void delete_should_answer_403_when_token_is_absent() throws Exception {
-        AliasedLink link = givenAliasedLink();
+        LinkAlias link = givenLinkAlias();
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/links/%s".formatted(link.id()));
         mvc.perform(request)
@@ -58,7 +58,7 @@ class LinkAliasControllerTest extends ControllerTest {
 
     @Test
     void delete_unrecognized_id_should_answer_not_found() throws Exception {
-        AliasedLink link = givenAliasedLink();
+        LinkAlias link = givenLinkAlias();
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/links/%s".formatted(UUID.randomUUID().toString()));
         mvc.perform(request)
@@ -67,7 +67,7 @@ class LinkAliasControllerTest extends ControllerTest {
 
     @Test
     void delete_twice_should_answer_not_found() throws Exception {
-        AliasedLink link = givenAliasedLink();
+        LinkAlias link = givenLinkAlias();
         RequestBuilder request = MockMvcRequestBuilders
                 .delete("/links/%s".formatted(link.id()))
                 .header("X-Removal-Token", link.token());

@@ -1,8 +1,8 @@
 package fr.sncf.d2d.web.shortener.spi;
 
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkCreation;
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkRepository;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasCreation;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasRepository;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -15,36 +15,36 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
+public class InMemoryLinkAliasRepository implements LinkAliasRepository {
 
-    protected final Map<UUID, AliasedLinkEntity> data = new HashMap<>();
-    private final Map<String, AliasedLinkEntity> aliasIndex = new HashMap<>();
-    private final SortedMap<LocalDateTime, AliasedLinkEntity> lastAccessedIndex = new TreeMap<>();
+    protected final Map<UUID, LinkAliasEntity> data = new HashMap<>();
+    private final Map<String, LinkAliasEntity> aliasIndex = new HashMap<>();
+    private final SortedMap<LocalDateTime, LinkAliasEntity> lastAccessedIndex = new TreeMap<>();
 
     private final Clock clock;
 
-    public InMemoryAliasedLinkRepository(Clock clock) {
+    public InMemoryLinkAliasRepository(Clock clock) {
         this.clock = clock;
     }
 
     @Override
-    public Optional<AliasedLink> retrieve(UUID id) {
-        AliasedLinkEntity link = this.data.get(id);
+    public Optional<LinkAlias> retrieve(UUID id) {
+        LinkAliasEntity link = this.data.get(id);
         if (link == null) {
             return Optional.empty();
         }
-        return Optional.of(link).map(AliasedLinkEntity::toAliasedLink);
+        return Optional.of(link).map(LinkAliasEntity::toLinkAlias);
     }
 
     @Override
-    public Optional<AliasedLink> retrieveByAlias(String shortValue) {
+    public Optional<LinkAlias> retrieveByAlias(String shortValue) {
         return Optional.ofNullable(this.aliasIndex.get(shortValue))
-                .map(AliasedLinkEntity::toAliasedLink);
+                .map(LinkAliasEntity::toLinkAlias);
     }
 
     @Override
     public void touch(UUID id) {
-        AliasedLinkEntity link = this.data.get(id);
+        LinkAliasEntity link = this.data.get(id);
         this.lastAccessedIndex.remove(link.getLastAccessed(), link);
         if (link == null) {
             return;
@@ -54,8 +54,8 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
     }
 
     @Override
-    public AliasedLink save(AliasedLinkCreation creation) {
-        AliasedLinkEntity entity = new AliasedLinkEntity(
+    public LinkAlias save(LinkAliasCreation creation) {
+        LinkAliasEntity entity = new LinkAliasEntity(
                 UUID.randomUUID(),
                 creation.alias(),
                 creation.url(),
@@ -63,15 +63,15 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
                 LocalDateTime.now(this.clock)
         );
         this.add(entity);
-        return entity.toAliasedLink();
+        return entity.toLinkAlias();
     }
 
     @Override
-    public void remove(AliasedLink aliasedLink) {
-        Objects.requireNonNull(aliasedLink, "Removed aliased link cannot be null.");
-        AliasedLinkEntity entity = this.data.get(aliasedLink.id());
+    public void remove(LinkAlias linkAlias) {
+        Objects.requireNonNull(linkAlias, "Removed aliased link cannot be null.");
+        LinkAliasEntity entity = this.data.get(linkAlias.id());
         if (entity == null) {
-            throw new IllegalArgumentException("No entity for link alias %s.".formatted(aliasedLink));
+            throw new IllegalArgumentException("No entity for link alias %s.".formatted(linkAlias));
         }
         this.remove(entity);
     }
@@ -79,7 +79,7 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
     @Override
     public int removeOlderThan(TemporalAmount interval) {
         LocalDateTime threshold = LocalDateTime.now(this.clock).minus(interval);
-        Map<LocalDateTime, AliasedLinkEntity> toRemove =
+        Map<LocalDateTime, LinkAliasEntity> toRemove =
                 this.lastAccessedIndex.headMap(threshold);
         int size = toRemove.size();
         toRemove.values().forEach(link -> {
@@ -90,13 +90,13 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
         return size;
     }
 
-    protected void add(AliasedLinkEntity entity) {
+    protected void add(LinkAliasEntity entity) {
         this.data.put(entity.getId(), entity);
         this.aliasIndex.put(entity.getAlias(), entity);
         this.lastAccessedIndex.put(entity.getLastAccessed(), entity);
     }
 
-    private void remove(AliasedLinkEntity entity) {
+    private void remove(LinkAliasEntity entity) {
         this.data.remove(entity.getId());
         this.aliasIndex.remove(entity.getAlias());
         this.lastAccessedIndex.remove(entity.getLastAccessed());

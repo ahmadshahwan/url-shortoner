@@ -10,35 +10,35 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class AliasedLinkService {
+public class LinkAliasService {
 
-    private final AliasedLinkRepository repository;
+    private final LinkAliasRepository repository;
     private final Base64.Encoder base64Encoder = Base64.getUrlEncoder();
 
-    public AliasedLinkService(
-        AliasedLinkRepository repository
+    public LinkAliasService(
+        LinkAliasRepository repository
     ) {
         this.repository = repository;
     }
 
-    public AliasedLink createAliasedLink(URL originalUrl) {
+    public LinkAlias create(URL originalUrl) {
         String shortUrl = this.generateAlias();
         String token = this.generateToken();
-        return this.repository.save(new AliasedLinkCreation(shortUrl, originalUrl, token));
+        return this.repository.save(new LinkAliasCreation(shortUrl, originalUrl, token));
     }
 
     public void revoke(UUID id, Optional<String> token) {
-        AliasedLink link = this.repository.retrieve(id)
-                .orElseThrow(() -> AliasedLinkNotFoundException.of(id));
+        LinkAlias link = this.repository.retrieve(id)
+                .orElseThrow(() -> LinkAliasNotFoundException.of(id));
         if (!token.map(link.token()::equals).orElse(false)) {
-            throw InvalidLinkTokenException.of(token.orElse("<empty>"));
+            throw InvalidRemovalTokenException.of(token.orElse("<empty>"));
         }
         this.repository.remove(link);
     }
 
     public URL resolve(String alias) {
-        AliasedLink entity = this.repository.retrieveByAlias(alias)
-                .orElseThrow(() -> AliasedLinkNotFoundException.of(alias));
+        LinkAlias entity = this.repository.retrieveByAlias(alias)
+                .orElseThrow(() -> LinkAliasNotFoundException.of(alias));
         this.repository.touch(entity.id());
         return entity.url();
     }

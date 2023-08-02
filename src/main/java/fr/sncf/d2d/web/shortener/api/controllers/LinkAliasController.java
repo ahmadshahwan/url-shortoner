@@ -1,8 +1,8 @@
 package fr.sncf.d2d.web.shortener.api.controllers;
 
-import fr.sncf.d2d.web.shortener.api.controllers.dto.AliasedLinkResponse;
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkService;
+import fr.sncf.d2d.web.shortener.api.controllers.dto.LinkAliasResponse;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -26,27 +26,27 @@ import java.util.UUID;
 @RequestMapping("links")
 public class LinkAliasController {
 
-    private final AliasedLinkService aliasedLinkService;
+    private final LinkAliasService linkAliasService;
 
     private static final String REMOVAL_TOKEN_HEADER_KEY = "X-Removal-Token";
 
     private static final List<String> ACCEPTED_PROTOCOLS = List.of("http", "https");
 
-    public LinkAliasController(AliasedLinkService aliasedLinkService) {
-        this.aliasedLinkService = aliasedLinkService;
+    public LinkAliasController(LinkAliasService linkAliasService) {
+        this.linkAliasService = linkAliasService;
     }
 
     @PostMapping
-    public AliasedLinkResponse create(
+    public LinkAliasResponse create(
             @RequestBody
             URL originalUrl,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
         this.validateURL(originalUrl, request);
-        AliasedLink aliasedLink = this.aliasedLinkService.createAliasedLink(originalUrl);
-        response.addHeader(REMOVAL_TOKEN_HEADER_KEY, aliasedLink.token());
-        return AliasedLinkResponse.from(aliasedLink);
+        LinkAlias linkAlias = this.linkAliasService.create(originalUrl);
+        response.addHeader(REMOVAL_TOKEN_HEADER_KEY, linkAlias.token());
+        return LinkAliasResponse.from(linkAlias);
     }
 
     @DeleteMapping("{id}")
@@ -56,7 +56,7 @@ public class LinkAliasController {
             @RequestHeader(value = REMOVAL_TOKEN_HEADER_KEY)
             Optional<String> token
     ) {
-        this.aliasedLinkService.revoke(id, token);
+        this.linkAliasService.revoke(id, token);
     }
 
     private void validateURL(URL url, HttpServletRequest request) {

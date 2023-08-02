@@ -1,7 +1,7 @@
 package fr.sncf.d2d.web.shortener.api.controllers;
 
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkNotFoundException;
-import fr.sncf.d2d.web.shortener.domain.InvalidLinkTokenException;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasNotFoundException;
+import fr.sncf.d2d.web.shortener.domain.InvalidRemovalTokenException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,12 +19,12 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handle(AliasedLinkNotFoundException ignore) {
+    public void handle(LinkAliasNotFoundException ignore) {
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public void handle(InvalidLinkTokenException ignore) {
+    public void handle(InvalidRemovalTokenException ignore) {
     }
 
     @ExceptionHandler

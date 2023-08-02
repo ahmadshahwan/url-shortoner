@@ -1,9 +1,9 @@
 package fr.sncf.d2d.web.shortener.api.controllers;
 
 import fr.sncf.d2d.web.shortener.UrlShortenerTestConfiguration;
-import fr.sncf.d2d.web.shortener.domain.AliasedLink;
-import fr.sncf.d2d.web.shortener.domain.AliasedLinkService;
-import fr.sncf.d2d.web.shortener.spi.InMemoryAliasedLinkRepository;
+import fr.sncf.d2d.web.shortener.domain.LinkAlias;
+import fr.sncf.d2d.web.shortener.domain.LinkAliasService;
+import fr.sncf.d2d.web.shortener.spi.InMemoryLinkAliasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
@@ -20,17 +20,17 @@ public abstract class ControllerTest {
     protected MockMvc mvc;
 
     @SpyBean
-    protected InMemoryAliasedLinkRepository aliasedLinkRepository;
+    protected InMemoryLinkAliasRepository linkAliasRepository;
 
     @SpyBean
-    protected AliasedLinkService aliasedLinkService;
+    protected LinkAliasService linkAliasService;
 
     @SpyBean
     protected Clock clock;
 
     protected static final String URL = "https://www.sncf.fr";
 
-    protected AliasedLink givenAliasedLink() throws MalformedURLException {
-        return aliasedLinkService.createAliasedLink(new URL(URL));
+    protected LinkAlias givenLinkAlias() throws MalformedURLException {
+        return linkAliasService.create(new URL(URL));
     }
 }
