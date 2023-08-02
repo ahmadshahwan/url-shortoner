@@ -45,10 +45,12 @@ public class InMemoryAliasedLinkRepository implements AliasedLinkRepository {
     @Override
     public void touch(UUID id) {
         AliasedLinkEntity link = this.data.get(id);
+        this.lastAccessedIndex.remove(link.getLastAccessed(), link);
         if (link == null) {
             return;
         }
         link.setLastAccessed(LocalDateTime.now(this.clock));
+        this.lastAccessedIndex.put(link.getLastAccessed(), link);
     }
 
     @Override
