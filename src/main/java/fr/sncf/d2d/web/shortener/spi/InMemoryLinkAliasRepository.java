@@ -7,6 +7,7 @@ import fr.sncf.d2d.web.shortener.domain.LinkAliasRepository;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -17,9 +18,10 @@ import java.util.UUID;
 
 public class InMemoryLinkAliasRepository implements LinkAliasRepository {
 
-    protected final Map<UUID, LinkAliasEntity> data = new HashMap<>();
-    private final Map<String, LinkAliasEntity> aliasIndex = new HashMap<>();
-    private final SortedMap<LocalDateTime, LinkAliasEntity> lastAccessedIndex = new TreeMap<>();
+    protected final Map<UUID, LinkAliasEntity> data = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, LinkAliasEntity> aliasIndex = Collections.synchronizedMap(new HashMap<>());
+    private final SortedMap<LocalDateTime, LinkAliasEntity> lastAccessedIndex =
+            Collections.synchronizedSortedMap(new TreeMap<>());
 
     private final Clock clock;
 
@@ -46,9 +48,6 @@ public class InMemoryLinkAliasRepository implements LinkAliasRepository {
     public void touch(UUID id) {
         LinkAliasEntity link = this.data.get(id);
         this.lastAccessedIndex.remove(link.getLastAccessed(), link);
-        if (link == null) {
-            return;
-        }
         link.setLastAccessed(LocalDateTime.now(this.clock));
         this.lastAccessedIndex.put(link.getLastAccessed(), link);
     }
