@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.temporal.TemporalAmount;
@@ -55,8 +56,10 @@ public class FilesystemLinkAliasRepository extends InMemoryLinkAliasRepository {
             return;
         }
         try {
-            LinkAliasEntity[] list = this.objectMapper.readValue(file, LinkAliasEntity[].class);
-            Arrays.stream(list).forEach(this::add);
+            LinkAliasEntity[] array = this.objectMapper.readValue(file, LinkAliasEntity[].class);
+            Arrays.stream(array).forEach(this::add);
+        } catch (FileNotFoundException e) {
+            this.logger.info("Log file not found, no data has been loaded.");
         } catch (IOException e) {
             this.logger.log(Level.SEVERE, "Log file could not be loaded.", e);
         }
